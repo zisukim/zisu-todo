@@ -1,17 +1,26 @@
 import React from 'react';
 import { StyleSheet, Text, View, StatusBar, Dimensions, Platform, TextInput, ScrollView } from 'react-native';
 import ToDo from './ToDo';
-//import { TextInput } from 'react-native-gesture-handler';
-//import { ScrollView } from '../../Library/Caches/typescript/2.6/node_modules/@types/react-native';
+import { AppLoading } from 'expo';
+import uuidv1 from 'uuid/v1'
 
 const { height, width } = Dimensions.get("window")
 
 export default class App extends React.Component {
   state = {
-    newToDo: ""
+    newToDo: '',
+    loadedToDos: false
+  };
+  componentDidMount = () => {
+    this._loadToDos();
+
   };
   render() {
-    const { newToDo } = this.state;
+    const { newToDo, loadedToDos } = this.state;
+    if (!loadedToDos) {
+      return <AppLoading />
+
+    }
     return (
       <View style={styles.container}>
         <StatusBar barStyle='light-content' />
@@ -26,19 +35,46 @@ export default class App extends React.Component {
             placeholderTextColor={"#999"}
             returnKeyType={"done"}
             autoCorrect={false}
+            onSubmitEditing={this._addToDo}
           />
           <ScrollView contentContainerStyle={styles.toDos}>
-            <ToDo />
-          </ScrollView>  
+            <ToDo text={"Hello ~~~"} />
+          </ScrollView>
         </View>
       </View>
     );
-  }
+  };
   _controlNewToDo = text => {
     this.setState({
       newToDo: text
     })
-  }
+  };
+  _loadToDos = () => {
+    this.setState({
+      loadedToDos: true
+
+    })
+  };
+  _addToDo = () => {
+    const { newToDo } = this.state;
+    if (newToDo !== '') {
+      this.setState( prevState => {
+        const ID = uuidv1();
+        const newToDoObject = {
+          [ID]: {
+            id: ID,
+            isCompleted: false,
+            text: newToDo,
+            createAt: Date.now()
+          }
+
+        }
+
+      });
+
+    }
+
+  };
 }
 
 const styles = StyleSheet.create({
